@@ -3,7 +3,7 @@ project(posit-neuralnet)
 
 # USER flags (change here) ################################################
 # Threads
-cmake_host_system_information(RESULT N QUERY NUMBER_OF_PHYSICAL_CORES)
+cmake_host_system_information(RESULT N QUERY NUMBER_OF_LOGICAL_CORES)
 add_definitions(-D LL_THREADS=${N})
 add_definitions(-D HL_THREADS=1)
 
