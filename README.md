@@ -73,8 +73,8 @@ git clone https://github.com/gonced8/universal.git
 - Parallelization: multithreading with std::thread
 
 ## Usage
-- Copy the CMakeLists.txt inside examples and adapt to your setup, namely, the directories of universal and PositNN, and number of threads
-- Build your project
+- Adjust the CMakeLists.txt inside examples and adapt to your setup, namely, the directories of universal/PositNN/Torch, and number of threads
+- Build your project/example, execute this in the example/project folder:
 ```shell
 $ mkdir build; cd build
 $ cmake .. -DCMAKE_PREFIX_PATH="/path/to/libtorch"
