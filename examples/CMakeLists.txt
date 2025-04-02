@@ -1,9 +1,10 @@
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-project(example)
+cmake_minimum_required(VERSION 3.9)
+project(posit-neuralnet)
 
 # USER flags (change here) ################################################
 # Threads
-add_definitions(-D LL_THREADS=4)
+cmake_host_system_information(RESULT N QUERY NUMBER_OF_PHYSICAL_CORES)
+add_definitions(-D LL_THREADS=${N})
 add_definitions(-D HL_THREADS=1)
 
 # Quire mode (0 = disabled, 1 = old standard, 2 = new standard)
@@ -13,9 +14,9 @@ add_definitions(-D QUIRE_MODE=1)
 add_definitions(-D UNDERFLOW_MODE=0)
 
 # Optimization
-set(USE_SSE OFF)
-set(USE_AVX OFF)
-set(USE_AVX2 OFF)
+set(USE_SSE ON)
+set(USE_AVX ON)
+set(USE_AVX2 ON)
 ###########################################################################
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -57,6 +58,8 @@ SET(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -pg")
 ###########################################################################
 
 # PyTorch (LibTorch) ######################################################
+set(CMAKE_PREFIX_PATH "${CMAKE_CURRENT_LIST_DIR}/../../include/libtorch/share/cmake/Torch")
+set(CMAKE_CUDA_ARCHITECTURES "all")
 find_package(Torch REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
@@ -70,26 +73,26 @@ include_directories("${HEADER_FOLDER}")
 ###########################################################################
 
 # Include universal (posits) ##############################################
-include_directories("${CMAKE_CURRENT_LIST_DIR}/../include/universal/include")
+include_directories("${CMAKE_CURRENT_LIST_DIR}/../../include/universal/include")
 ###########################################################################
 
 # Include PositNN (PyTorch for posits) ####################################
-include_directories("${CMAKE_CURRENT_LIST_DIR}/../include")
+include_directories("${CMAKE_CURRENT_LIST_DIR}/../../include")
 ###########################################################################
 
 # Setup executables #######################################################
 add_executable(train_float ${SRC_FOLDER}/train_float.cpp)
 target_link_libraries(train_float ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(train_float "${TORCH_LIBRARIES}")
-set_property(TARGET train_float PROPERTY CXX_STANDARD 14)
+set_property(TARGET train_float PROPERTY CXX_STANDARD 17)
 
 add_executable(train_posit ${SRC_FOLDER}/train_posit.cpp)
 target_link_libraries(train_posit ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(train_posit "${TORCH_LIBRARIES}")
-set_property(TARGET train_posit PROPERTY CXX_STANDARD 14)
+set_property(TARGET train_posit PROPERTY CXX_STANDARD 17)
 
 add_executable(test_posit ${SRC_FOLDER}/test_posit.cpp)
 target_link_libraries(test_posit ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(test_posit "${TORCH_LIBRARIES}")
-set_property(TARGET test_posit PROPERTY CXX_STANDARD 14)
+set_property(TARGET test_posit PROPERTY CXX_STANDARD 17)
 ###########################################################################

@@ -76,11 +76,16 @@ git clone https://github.com/gonced8/universal.git
 - Adjust the CMakeLists.txt inside examples and adapt to your setup, namely, the directories of universal/PositNN/Torch, and number of threads
 - Build your project/example, execute this in the example/project folder:
 ```shell
-$ mkdir build; cd build
-$ cmake .. -DCMAKE_PREFIX_PATH="/path/to/libtorch"
-$ make
+./build.sh <project-folder>
 ```
-## Tests
+
+To run:
+```shell
+cd <project-folder>/build
+./train_<version>
+```
+
+## Tests (old doc)
 
 To check if everything is installed correctly, you can try one of the examples. The following steps describe how to test the mnist_fcnn example.
 
