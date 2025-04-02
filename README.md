@@ -46,13 +46,13 @@ Folder "examples" includes: example of CMakeLists.txt for a project, an example 
 
 - Clone this repository
 ```shell
-$ git clone https://github.com/hpc-ulisboa/posit-neuralnet.git
+git clone https://github.com/hpc-ulisboa/posit-neuralnet.git
 ```
 
 - Clone gonced8/universal repository inside include folder
 ```shell
-$ cd posit-neuralnet/include
-$ git clone https://github.com/gonced8/universal.git
+cd posit-neuralnet/include
+git clone https://github.com/gonced8/universal.git
 ```
 
 - Download appropriate PyTorch for C++ (LibTorch) and unzip also inside include folder
@@ -86,7 +86,7 @@ To check if everything is installed correctly, you can try one of the examples. 
 
 - Go to the project folder
 ```shell
-$ cd examples/mnist_fcnn
+cd examples/mnist_fcnn
 ```
 - (Optional) Edit CMakeLists.txt to your configuration. Configure positnn and universal path. The one given assumes that they are both inside the include folder at the repository root directory, that is, from your current path:
 ```shell
@@ -95,14 +95,14 @@ $ cd examples/mnist_fcnn
 ```
 - Build the project. Specify absolute path to PyTorch (LibTorch) folder. This example assumes that the folder is also inside the include folder.
 ```shell
-$ mkdir build; cd build
-$ cmake .. -DCMAKE_PREFIX_PATH="/home/gonced8/posit-neuralnet/include/libtorch"
-$ make
+mkdir build; cd build
+cmake .. -DCMAKE_PREFIX_PATH="/home/gonced8/posit-neuralnet/include/libtorch"
+make
 ```
 
 - Run program. If you're saving the models, make sure the appropriate output folder exists.
 ```shell
-$ ./train_posit
+./train_posit
 ```
 
 ---
