@@ -5,3 +5,5 @@ include/libtorch/
 
 *.o
 *.swp
+*.dat
+*.pt
