@@ -22,8 +22,9 @@ void test_float(	Model& model,
 		auto target = batch.target;
 		
 		// Convert data and target to float32 and long
-		data = data.to(torch::kF32);
-		target = target.to(torch::kLong);
+		torch::Device device = model->parameters().front().device();
+		data = data.to(device, torch::kF32);
+		target = target.to(device, torch::kLong);
 
 		// Forward pass
 		auto output = model->forward(data);

@@ -40,8 +40,14 @@ int main() {
 	// Line buffering
 	setvbuf(stdout, NULL, _IOLBF, 0);
 
+	bool gpu = false;
+	if (torch::cuda::is_available()) {
+		std::cout << "Found CUDA-enabled device" << std::endl;
+		gpu = true;
+	}
+
     std::cout << "MNIST Classification" << std::endl;
-    std::cout << "Training and Testing on CPU." << std::endl;
+    std::cout << "Training and Testing on " << (gpu ? "GPU" : "CPU") << std::endl;
 	if(SAVE_UNTRAINED || SAVE_EPOCH)
 		std::cout << "Save path: " << NET_SAVE_PATH << std::endl;
 	
@@ -65,6 +71,10 @@ int main() {
 
 	// Float and Posit networks
 	LeNet5_float model_float;
+
+	if (gpu) {
+		model_float->to(torch::kCUDA);
+	}
 
 	// Load net parameters from file
 	if(LOAD){
