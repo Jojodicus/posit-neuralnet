@@ -1,54 +1,66 @@
 // General headers
 #include <iostream>
-#include <positnn/utils/ArgumentParser.hpp>
-#include <stdio.h>
 #include <torch/torch.h>
+#include <universal/posit/posit>
+#include <positnn/positnn>
+#include <stdio.h>
 
 // Custom headers
 #include "FloatNet.hpp"
+#include "PositNet.hpp"
 
 // Custom functions
-#include "test_float16.hpp"
-#include "train_float16.hpp"
+#include "test_posit.hpp"
+#include "train_posit.hpp"
+#include "train_float.hpp"
+
+// Namespaces
+using namespace sw::unum;
+
+// Posit configuration
+using Posit = posit<16, 2>;
 
 // Dataset path
-#define DATASET_PATH					"../dataset"
+#define DATASET_PATH				"../dataset"
 
 // Load
-#define NET_LOAD_FILENAME_FLOAT			"../net/example/model_epoch_0_float16.pt"
+#define NET_LOAD_FILENAME_FLOAT		"../net/example/model_epoch_0_float.pt"
+#define NET_LOAD_FILENAME_POSIT		"../net/example/model_epoch_0_posit16.dat"
 
 // Save
-#define NET_SAVE_PATH					"../net/example/"
-#define NET_EPOCH_FILENAME_FLOAT		"model_epoch_%zu_float16.pt"
+#define NET_SAVE_PATH				"../net/example/"
+#define NET_EPOCH_FILENAME_POSIT	"model_epoch_%zu_posit16.dat"
 
 // Options
 #define LOAD false
+#define COPY true
 #define SAVE_UNTRAINED true
 #define SAVE_EPOCH true
+using PositLoad = posit<16, 2>;
+using PositSave = posit<16, 2>;
 
-template<class ModelFloat>
-void save_model(std::string save_path, ModelFloat& model_float, size_t const epoch) {
-	// Float
-	char net_epoch_filename_float[128];
-	snprintf(net_epoch_filename_float, sizeof(net_epoch_filename_float),
-			NET_EPOCH_FILENAME_FLOAT, epoch);
-	save_path += net_epoch_filename_float;
+template<typename T, template<typename> class ModelPosit>
+void save_model(std::string save_path, ModelPosit<T>& model_posit, size_t const epoch) {
+	// Posit
+	char net_epoch_filename_posit[128];
+	snprintf(net_epoch_filename_posit, sizeof(net_epoch_filename_posit),
+			NET_EPOCH_FILENAME_POSIT, epoch);
+	save_path += net_epoch_filename_posit;
 
-	torch::save(model_float, save_path);
+	save<PositSave>(model_posit, save_path);
 }
 		
 int main() {
 	// Line buffering
 	setvbuf(stdout, NULL, _IOLBF, 0);
-
-	bool gpu = false;
-	if (torch::cuda::is_available()) {
-		std::cout << "Found CUDA-enabled device" << std::endl;
-		gpu = true;
-	}
-
+	
     std::cout << "MNIST Classification" << std::endl;
-    std::cout << "Training and Testing on " << (gpu ? "GPU" : "CPU") << std::endl;
+    std::cout << "Training and Testing on CPU." << std::endl;
+	std::cout << "Underflow mode: " << UNDERFLOW_MODE << std::endl;
+	std::cout << "Quire mode: " << QUIRE_MODE << std::endl;
+	std::cout << "LL Threads: " << LL_THREADS << std::endl;
+	std::cout << "HL Threads: " << HL_THREADS << std::endl;
+    std::cout << "Posit<" << Posit::nbits << ", " << Posit::es << ">" << std::endl;
 	if(SAVE_UNTRAINED || SAVE_EPOCH)
 		std::cout << "Save path: " << NET_SAVE_PATH << std::endl;
 	
@@ -69,21 +81,25 @@ int main() {
 	float learning_rate = 1./16;
 	float const momentum = 0.5;
 
-	// Float network
+	// Float and Posit networks
     FloatNet model_float;
-	model_float->to(torch::kFloat16);
-	if (gpu) {
-		model_float->to(torch::kCUDA);
-	}
+	PositNet<Posit> model_posit;
 
 	// Load net parameters from file
 	if(LOAD){
 		torch::load(model_float, NET_LOAD_FILENAME_FLOAT);
+		if(!COPY)
+			load<PositLoad>(model_posit, NET_LOAD_FILENAME_POSIT);
+	}
+
+	// Initialize posit net with the same random parameters as float net
+	if(COPY) {
+		copy_parameters(model_float->parameters(), model_posit.parameters());
 	}
 
 	// Save net before training
 	if(SAVE_UNTRAINED)
-		save_model(NET_SAVE_PATH, model_float, 0);
+		save_model(NET_SAVE_PATH, model_posit, 0);
 	
 	// Load MNIST training dataset
 	auto train_dataset = torch::data::datasets::MNIST(DATASET_PATH)
@@ -109,22 +125,22 @@ int main() {
 							torch::data::DataLoaderOptions().batch_size(kTestBatchSize));
 
 	// Optimizer
-    torch::optim::SGD optimizer_float(model_float->parameters(), torch::optim::SGDOptions(learning_rate).momentum(momentum));
+    SGD<Posit> optimizer_posit(model_posit.parameters(), SGDOptions<Posit>(learning_rate, momentum));
 
 	// Test with untrained models
-	// Float
-	std::cout << std::endl << "Float" << std::endl;
-	test_float(model_float, *test_loader, test_dataset_size);
-	
+	//Posit
+	std::cout << std::endl << "Posit" << std::endl;
+	test_posit(model_posit, *test_loader, test_dataset_size);
+
     // Train the model
     std::cout << std::endl << "Running..." << std::endl;
-    for (size_t epoch = 1; epoch<=num_epochs; epoch++) {
-		train_float(epoch, num_epochs, model_float, *train_loader, optimizer_float, kLogInterval, train_dataset_size);
-		test_float(model_float, *test_loader, test_dataset_size);
+    for (size_t epoch = 1; epoch<=num_epochs; ++epoch) {
+		train_posit(epoch, num_epochs, model_posit, *train_loader, optimizer_posit, kLogInterval, train_dataset_size);
+		test_posit(model_posit, *test_loader, test_dataset_size);
 		
 		// Save models after each epoch
 		if(SAVE_EPOCH)
-			save_model(NET_SAVE_PATH, model_float, epoch);
+			save_model(NET_SAVE_PATH, model_posit, epoch);
     }
 
     std::cout << "Finished!\n";

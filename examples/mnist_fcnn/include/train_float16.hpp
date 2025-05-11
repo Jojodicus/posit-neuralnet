@@ -28,6 +28,7 @@ void train_float(	size_t epoch,
 		auto target = batch.target;
 		
 		// Convert data and target to float32 and long
+		torch::Device device = model->parameters().front().device();
 		data = data.to(torch::kFloat16);
 		target = target.to(torch::kLong);
 
