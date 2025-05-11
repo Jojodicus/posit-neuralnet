@@ -29,8 +29,8 @@ void train_float(	size_t epoch,
 		
 		// Convert data and target to float32 and long
 		torch::Device device = model->parameters().front().device();
-		data = data.to(torch::kFloat16);
-		target = target.to(torch::kLong);
+		data = data.to(device, torch::kFloat16);
+		target = target.to(device, torch::kLong);
 
 		// Forward pass
 		auto output = model->forward(data);

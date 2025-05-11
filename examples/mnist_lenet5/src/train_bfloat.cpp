@@ -74,7 +74,7 @@ int main() {
 
 	model_float->to(torch::kBFloat16);
 	if (gpu) {
-		model_float->to(torch::kCUDA);
+		model_float->to(torch::kCUDA, torch::kBFloat16);
 	}
 
 	// Load net parameters from file
