@@ -58,6 +58,8 @@ int main() {
     std::cout << "Training and Testing on CPU." << std::endl;
 	std::cout << "Underflow mode: " << UNDERFLOW_MODE << std::endl;
 	std::cout << "Quire mode: " << QUIRE_MODE << std::endl;
+	std::cout << "LL Threads: " << LL_THREADS << std::endl;
+	std::cout << "HL Threads: " << HL_THREADS << std::endl;
     std::cout << "Posit<" << Posit::nbits << ", " << Posit::es << ">" << std::endl;
 	if(SAVE_UNTRAINED || SAVE_EPOCH)
 		std::cout << "Save path: " << NET_SAVE_PATH << std::endl;

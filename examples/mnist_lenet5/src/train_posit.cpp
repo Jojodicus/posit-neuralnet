@@ -65,7 +65,7 @@ int main() {
 	std::cout << "Underflow mode: " << UNDERFLOW_MODE << std::endl;
 	std::cout << "Quire mode: " << QUIRE_MODE << std::endl;
 	std::cout << "LL Threads: " << LL_THREADS << std::endl;
-	std::cout << "HL Threads: " << LL_THREADS << std::endl;
+	std::cout << "HL Threads: " << HL_THREADS << std::endl;
     std::cout << "PositOptimizer<" << Type::Optimizer::nbits << ", " << Type::Optimizer::es << ">" << std::endl;
     std::cout << "PositForward<" << Type::Forward::nbits << ", " << Type::Forward::es << ">" << std::endl;
     std::cout << "PositBackward<" << Type::Backward::nbits << ", " << Type::Backward::es << ">" << std::endl;
